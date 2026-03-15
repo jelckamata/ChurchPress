@@ -16,8 +16,15 @@
         }
     },
     "require": {
-        "php": ">=8.1"
+        "php": ">=8.1",
+        "jelckama/liturgical": "dev-main"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/jelckamata/Liturgical.php.git"
+        }
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }
