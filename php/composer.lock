@@ -1,0 +1,63 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "56cc703692ae7ed7f74d6103342a3cca",
+    "packages": [
+        {
+            "name": "jelckama/liturgical",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jelckamata/Liturgical.php.git",
+                "reference": "ff0a9821e026f8a0c977ee02a39291a6ac6e16a7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jelckamata/Liturgical.php/zipball/ff0a9821e026f8a0c977ee02a39291a6ac6e16a7",
+                "reference": "ff0a9821e026f8a0c977ee02a39291a6ac6e16a7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JELCKamata\\Liturgical\\": ""
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "JELCKamata ICT Team and Haruka Sato",
+                    "email": "hal.ict@jelckama.com"
+                }
+            ],
+            "description": "To calculate liturgical year, color, etc., for mainly PHP-available web servers",
+            "support": {
+                "source": "https://github.com/jelckamata/Liturgical.php/tree/main",
+                "issues": "https://github.com/jelckamata/Liturgical.php/issues"
+            },
+            "time": "2026-03-15T03:20:15+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "jelckama/liturgical": 20
+    },
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": {
+        "php": ">=8.1"
+    },
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
+}
