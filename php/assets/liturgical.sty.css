@@ -1,0 +1,154 @@
+.news_board{
+	margin: 0 auto;
+}
+
+:root {
+    --lit_red: #d90000;
+    --lit_white: #ffffff;
+    --lit_gold: #fff176;
+    --lit_gold_h: #c39000;
+    --lit_green: #32ab38;
+    --lit_purple: #8a2be2;
+    --lit_purple_l: #cf87ff;
+    --lit_black: #4d5f53;
+    --lit_rose: #e08282;
+    --lit_blue: #0000f8;
+}
+
+.lit_red {
+	background-color: var(--lit_red);
+}
+.lit_white {
+	background-color: var(--lit_white);
+}
+.lit_gold {
+	background-color: var(--lit_gold);
+}
+.lit_green {
+	background-color: var(--lit_green);
+}
+.lit_purple {
+	background-color: var(--lit_purple);
+}
+.lit_black {
+	background-color: var(--lit_black);
+}
+.lit_rose {
+	background-color: var(--lit_rose);
+}
+.lit_blue {
+	background-color: var(--lit_blue);
+}
+
+.lit_red_bg {
+	background-color: var(--lit_red);
+}
+.lit_white_bg {
+	background-color: var(--lit_white);
+}
+.lit_gold_bg {
+	background-color: var(--lit_gold);
+}
+.lit_green_bg {
+	background-color: var(--lit_green);
+}
+.lit_purple_bg {
+	background-color: var(--lit_purple_l);
+}
+.lit_black_bg {
+	background-color: var(--lit_black);
+}
+.lit_rose_bg {
+	background-color: var(--lit_rose);
+}
+.lit_blue_bg {
+	background-color: var(--lit_blue);
+}
+
+.lit_red_fg {
+	color: var(--lit_red);
+}
+.lit_white_fg {
+	color: var(--lit_white);
+}
+.lit_gold_fg {
+	color: var(--lit_gold_h);
+}
+.lit_green_fg {
+	color: var(--lit_green);
+}
+.lit_purple_fg {
+	color: var(--lit_purple);
+}
+.lit_black_fg {
+	color: var(--lit_black);
+}
+.lit_rose_fg {
+	color: var(--lit_rose);
+}
+.lit_blue_fg {
+	color: var(--lit_blue);
+}
+
+.news_board .advent_and_lent a{
+	color: var(--lit_purple);
+	text-decoration: underline solid var(--lit_purple);
+}
+.news_board .gaudete_and_laetare a{
+	color: var(--lit_rose);
+	text-decoration: underline solid var(--lit_rose);
+}
+.news_board .christmas_and_easter a{
+	color: var(--lit_gold_h);
+	text-decoration: underline solid var(--lit_gold_h);
+}
+.news_board .pentecost_and_reformation a{
+	color: var(--lit_red);
+	text-decoration: underline solid var(--lit_red);
+}
+
+.advent_and_lent hr, .advent_and_lent h1,  .advent_and_lent h2{
+	color: var(--lit_purple);
+	font-weight: bolder;
+}
+.gaudete_and_laetare hr, .gaudete_and_laetare h1,  .gaudete_and_laetare h2{
+	color: var(--lit_rose);
+	font-weight: bolder;
+}
+.christmas_and_easter hr, .christmas_and_easter h1,  .christmas_and_easter h2{
+	color: var(--lit_gold_h);
+	font-weight: bolder;
+}
+.pentecost_and_reformation hr, .pentecost_and_reformation h1,  .pentecost_and_reformation h2{
+	color: var(--lit_red);
+	font-weight: bolder;
+}
+
+h4.advent_and_lent {
+	text-decoration: underline solid var(--lit_purple) 0.05em;
+}
+h4.gaudete_and_laetare {
+	color: var(--lit_rose);
+	font-weight: bolder;
+	text-decoration: underline solid var(--lit_rose) 0.05em;
+}
+h4.christmas_and_easter {
+	text-decoration: underline solid var(--lit_gold) 0.05em;
+}
+h4.pentecost_and_reformation {
+	text-decoration: underline solid var(--lit_red) 0.05em;
+}
+
+span.next_pericope_b {
+	color: darkgreen;
+	font-weight: bold;
+	text-decoration: underline solid darkgreen;
+}
+p.organ_concert_advent a{
+	color: var(--wp--preset--color--vivid-purple) !important;
+	font-weight: bold;
+}
+
+p.organ_concert_advent a span.here {
+	color: var(--wp--preset--color--vivid-red) !important;
+}
