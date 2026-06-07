@@ -192,11 +192,9 @@ function hymnindex(array $attr): string {
 }
 add_shortcode("hymn", "hymnindex");
 
-function valkeys()  {
-	return ["name", "abbr1", "abbr2", "newold"];
-}
-function biblebooks() {
-	return [
+$valkeys = ["name", "abbr1", "abbr2", "newold"];
+
+$biblebooks = [
 		"gen" => ["創世記", "創", "創世記", "old"],
 		"exo" => ["出エジプト記", "出", "出エジプト", "old"],
 		"lev" => ["レビ記", "レビ", "レビ記", "old"],
@@ -264,18 +262,32 @@ function biblebooks() {
 		"jud" => ["ユダの手紙", "ユダ", "ユダ", "new"],
 		"rev" => ["ヨハネの黙示録", "黙", "黙示録", "new"],
 	];
+function biblebooks_rec(string $key): array {
+	global $biblebooks;
+	if(!array_key_exists($key, $biblebooks)){
+		return [];
+	}
+	return $biblebooks[$key];
 }
 function lookup_bible(string $id, string $kind): string {
+	global $valkeys;
 	$id = strtolower($id);
-	$pos = array_search($kind, valkeys());
+	$pos = array_search($kind, $valkeys);
 	if($pos === false){
 		return "";
 	}
-	return biblebooks()[$id][$pos];
+	return biblebooks_rec($id)[$pos];
 }
 function render_doc(string $doc): string {
 	/*
 	bbbcc:ss(l)?-(cc:)?ss(l)?(,(cc:)?ss(l)?-(cc:)?ss(l)?)*
+
+	bbb: 聖書文書の略号 (例: gen, exo, psaなど) [required]
+	cc: 章番号 (例: 1, 2, 3など) [required, but if same as previous cc, can be omitted]
+  ss: 節番号 (例: 1, 2, 3など) [required]
+	l: 節全部ではなく一部の文のみを読む場合、文の順番を表すアルファベット数字 (例: a, b, cなど) [optional]
+
+	例えば、`gen1:1-3`は創世記の第1章の1節から3節までを意味し、`psa23:1,3-4`は詩編の第23章の1節と3節から4節までを意味します。
 		*/
 	//ToDo: 上記フォーマットに基づくように正規表現を修正する。および、その修正された正規表現に基づいてパディング等の整形部分を修正する。
   $status = preg_match("/\A(?:(?P<book>[a-z0-9][a-z]{2}))?(?P<chap>(:?\d|(:?[1-9]\d+)))(:?\.(?P<beg>(:?\d|(:?[1-9]\d+)))?-(?P<end>(:?\d|(:?[1-9]\d+))))?\z/", $doc, $matches);
