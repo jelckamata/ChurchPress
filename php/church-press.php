@@ -20,15 +20,15 @@ use \boolean;
 
 
 function show_if(array $attr, string $content = ""){
-	$d_from = new DateTime($attr["from"]);
-	$d_to = new DateTime($attr["to"]);
-	$d_now = new DateTime();
-	if($d_from <= $d_now && $d_now <= $d_to){
-		return $content;
-	}else{
-		return "";
-	}
-	
+  $d_from = new DateTime($attr["from"]);
+  $d_to = new DateTime($attr["to"]);
+  $d_now = new DateTime();
+  if($d_from <= $d_now && $d_now <= $d_to){
+    return $content;
+  }else{
+    return "";
+  }
+  
 }
 add_shortcode("ifonly", "show_if");
 
@@ -77,7 +77,7 @@ function render_hymnindex(string $id): string {
   }else if($el["beg"] == null){
     $cla = " (1〜{$el["end"]})";
   }else{
-	  $cla = " ({$el["beg"]}〜{$el["end"]})";
+    $cla = " ({$el["beg"]}〜{$el["end"]})";
   }
   return $bn_abbr[$el["book"]] . $el["nr"] . $cla;
 }
@@ -106,253 +106,253 @@ function hymnMidiPlayer(int $nr, ?string $id = null): string {
 
   $nrStr = str_pad((string) $nr, 3, "0", STR_PAD_LEFT);
   $nrSerMinStr = str_pad((string) $nrSerMin, 3, "0", STR_PAD_LEFT);
-	$nrSerMaxStr = str_pad((string) $nrSerMax, 3, "0", STR_PAD_LEFT);
-	$idS = $id == null ? $nrStr : $id;
+  $nrSerMaxStr = str_pad((string) $nrSerMax, 3, "0", STR_PAD_LEFT);
+  $idS = $id == null ? $nrStr : $id;
 
-	$midiSrc = "{$midiSrcBase}/{$nrSerMinStr}-{$nrSerMaxStr}/{$nrStr}.mid";
-	$mpe = "<midi-player id={$qt}{$idS}{$qt} class={$qt}hymn_midi_player{$qt} src={$qt}{$midiSrc}{$qt} sound-font></midi-player>";
+  $midiSrc = "{$midiSrcBase}/{$nrSerMinStr}-{$nrSerMaxStr}/{$nrStr}.mid";
+  $mpe = "<midi-player id={$qt}{$idS}{$qt} class={$qt}hymn_midi_player{$qt} src={$qt}{$midiSrc}{$qt} sound-font></midi-player>";
   return $mpe;
 }
 
 // idからhtml要素へビルド
 // リンク対応の場合`<a href="url" class="class">表示</a>`、そうでない場合`<span class="class">表示</span>`
 function build_hymnindex(string $id, array $callbacks, ?string $class_proto = null): string {
-	$qt = "\"";
-	$classvers = $class_proto == null ? "" : " class=". $qt . esc_attr($class_proto) . $qt;
-	$disp = render_hymnindex($id);
-	$url = esc_url(hymnindex_url($id, $callbacks));
+  $qt = "\"";
+  $classvers = $class_proto == null ? "" : " class=". $qt . esc_attr($class_proto) . $qt;
+  $disp = render_hymnindex($id);
+  $url = esc_url(hymnindex_url($id, $callbacks));
     $ret = (($url == null) ? ("<span{$classvers}>{$disp}</span>") : ("<a href={$qt}{$url}{$qt} target={$qt}_blank{$qt}{$classvers}>{$disp}</a>")) ;
-	return $ret;
+  return $ret;
 }
 function asbool(mixed $target): bool {
-	$tlist = ["true", "t", "on", "yes", "y"];
+  $tlist = ["true", "t", "on", "yes", "y"];
     $flist = ["false", "f", "off", "no", "n"];
 
-	switch(gettype($target)){
-		case "boolean":
-		    return $target;
-		case "integer":
-			return ($target % 2) == 0;
-		case "double":
-			return asbool(intval($target));
-		case "string":
-			if(in_array($target, $tlist)){
-				return true;
-			}else if(in_array($target, $flist)){
-				return false;	
-			}else{
-				throw new Exception("illegal string");
-			}
-		default:
-			throw new Exception("uninpl type");
-	}
+  switch(gettype($target)){
+    case "boolean":
+        return $target;
+    case "integer":
+      return ($target % 2) == 0;
+    case "double":
+      return asbool(intval($target));
+    case "string":
+      if(in_array($target, $tlist)){
+        return true;
+      }else if(in_array($target, $flist)){
+        return false;  
+      }else{
+        throw new Exception("illegal string");
+      }
+    default:
+      throw new Exception("uninpl type");
+  }
 }
 /**
  * @param string[] $attr ショートコード引数
  * @return string
  */
 function hymnindex(array $attr): string {
-	if(array_key_exists("yet", $attr)){
-		if(asbool($attr["yet"])){
-			return "";
-		}
-	}
-	$baseurl = "https://seishonikka.org/hymnindex/wordsall.htm";
+  if(array_key_exists("yet", $attr)){
+    if(asbool($attr["yet"])){
+      return "";
+    }
+  }
+  $baseurl = "https://seishonikka.org/hymnindex/wordsall.htm";
 
-	$hymnpos = ["ma", "mi", "se", "ha"];
-	$hymnids = 
+  $hymnpos = ["ma", "mi", "se", "ha"];
+  $hymnids = 
      array_filter(
        array_map(
          function(string $e) {
            return strtolower($e);
           }, $attr),
-		 function(string $k) use ($hymnpos) : bool {
+     function(string $k) use ($hymnpos) : bool {
           return in_array($k, $hymnpos, true);
          },
        ARRAY_FILTER_USE_KEY);
-	uksort($hymnids,
+  uksort($hymnids,
      function(string $a, string $b) use ($hymnpos): int {
        return array_search($a, $hymnpos) <=> array_search($b, $hymnpos);
      }
    );
-	$ret = implode("、", array_map(
-		function(string $e) use ($baseurl): string {
-			return build_hymnindex($e, [
-				"ch" => function(int $nr, ?int $beg, ?int $end) use ($baseurl){
-					return $baseurl . "#" . str_pad($nr, 3, "0", STR_PAD_LEFT);
-				}
-			]);
-		}, $hymnids));
+  $ret = implode("、", array_map(
+    function(string $e) use ($baseurl): string {
+      return build_hymnindex($e, [
+        "ch" => function(int $nr, ?int $beg, ?int $end) use ($baseurl){
+          return $baseurl . "#" . str_pad($nr, 3, "0", STR_PAD_LEFT);
+        }
+      ]);
+    }, $hymnids));
     $midiP = implode("", array_map(
-		function(string $e): string {
-			return hymnMidiPlayer(intval($e));
-		}, $hymnids));
-	$ret2 = "<br/><pre>&#009;</pre>" . $midiP;
-	return "<!-- wp:paragraph --><p>教会讃美歌：" . $ret . $ret2 . "</p><!-- /wp:paragraph -->";
+    function(string $e): string {
+      return hymnMidiPlayer(intval($e));
+    }, $hymnids));
+  $ret2 = "<br/><pre>&#009;</pre>" . $midiP;
+  return "<!-- wp:paragraph --><p>教会讃美歌：" . $ret . $ret2 . "</p><!-- /wp:paragraph -->";
 }
 add_shortcode("hymn", "hymnindex");
 
 $valkeys = ["name", "abbr1", "abbr2", "newold"];
 
 $biblebooks = [
-		"gen" => ["創世記", "創", "創世記", "old"],
-		"exo" => ["出エジプト記", "出", "出エジプト", "old"],
-		"lev" => ["レビ記", "レビ", "レビ記", "old"],
-		"num" => ["民数記", "民", "民数記", "old"],
-		"deu" => ["申命記", "申", "申命記", "old"],
-		"jos" => ["ヨシュア記", "ヨシュ", "ヨシュア", "old"],
-		"jdg" => ["士師記", "士", "士師記", "old"],
-		"rut" => ["ルツ記", "ルツ", "ルツ記", "old"],
-		"1sa" => ["サムエル記上", "サム上", "サムエル上", "old"],
-		"2sa" => ["サムエル記下", "サム下", "サムエル下", "old"],
-		"1ki" => ["列王記上", "列上", "列王記上", "old"],
-		"2ki" => ["列王記下", "列下", "列王記下", "old"],
-		"1ch" => ["歴代誌上", "歴上", "歴代誌上", "old"],
-		"2ch" => ["歴代誌下", "歴下", "歴代誌下", "old"],
-		"ezr" => ["エズラ記", "エズ", "エズラ記", "old"],
-		"neh" => ["ネヘミヤ記", "ネヘ", "ネヘミヤ", "old"],
-		"est" => ["エステル記", "エス", "エステル", "old"],
-		"job" => ["ヨブ記", "ヨブ", "ヨブ記", "old"],
-		"psa" => ["詩編", "詩", "詩編", "old"],
-		"pro" => ["箴言", "箴", "箴言", "old"],
-		"qoh" => ["コヘレトの言葉", "コヘ", "コヘレト", "old"],
-		"son" => ["雅歌", "雅", "雅歌", "old"],
-		"isa" => ["イザヤ書", "イザ", "イザヤ書", "old"],
-		"jer" => ["エレミヤ書", "エレ", "エレミヤ", "old"],
-		"lam" => ["哀歌", "哀", "哀歌", "old"],
-		"eze" => ["エゼキエル書", "エゼ", "エゼキエル", "old"],
-		"dan" => ["ダニエル書", "ダニ", "ダニエル", "old"],
-		"hos" => ["ホセア書", "ホセ", "ホセア書", "old"],
-		"joe" => ["ヨエル書", "ヨエ", "ヨエル書", "old"],
-		"amo" => ["アモス書", "アモ", "アモス書", "old"],
-		"oba" => ["オバデヤ書", "オバ", "オバデヤ", "old"],
-		"jon" => ["ヨナ書", "ヨナ", "ヨナ書", "old"],
-		"mic" => ["ミカ書", "ミカ", "ミカ書", "old"],
-		"nah" => ["ナホム書", "ナホ", "ナホム書", "old"],
-		"hab" => ["ハバクク書", "ハバ", "ハバクク", "old"],
-		"zep" => ["ゼファニヤ書", "ゼファ", "ゼファニヤ", "old"],
-		"hag" => ["ハガイ書", "ハガ", "ハガイ書", "old"],
-		"zec" => ["ゼカリヤ書", "ゼカ", "ゼカリヤ", "old"],
-		"mal" => ["マラキ書", "マラ", "マラキ", "old"],
-		"mat" => ["マタイによる福音書", "マタ", "マタイ", "new"],
-		"mar" => ["マルコによる福音書", "マコ", "マルコ", "new"],
-		"luk" => ["ルカによる福音書", "ルカ", "ルカ", "new"],
-		"joh" => ["ヨハネによる福音書", "ヨハ", "ヨハネ", "new"],
-		"act" => ["使徒言行録", "使", "使徒", "new"],
-		"rom" => ["ローマの信徒への手紙", "ロマ", "ローマ", "new"],
-		"1co" => ["コリントの信徒への手紙一", "１コリ", "１コリント", "new"],
-		"2co" => ["コリントの信徒への手紙二", "２コリ", "２コリント", "new"],
-		"gal" => ["ガラテヤの信徒への手紙", "ガラ", "ガラテヤ", "new"],
-		"eph" => ["エフェソの信徒への手紙", "エフェ", "エフェソ", "new"],
-		"phi" => ["フィリピの信徒への手紙", "フィリ", "フィリピ", "new"],
-		"col" => ["コロサイの信徒への手紙", "コロ", "コロサイ", "new"],
-		"1th" => ["テサロニケの信徒への手紙一", "１テサ", "１テサロニケ", "new"],
-		"2th" => ["テサロニケの信徒への手紙二", "２テサ", "２テサロニケ", "new"],
-		"1ti" => ["テモテへの手紙一", "１テモ", "１テモテ", "new"],
-		"2ti" => ["テモテへの手紙二", "２テモ", "２テモテ", "new"],
-		"tit" => ["テトスへの手紙", "テト", "テトス", "new"],
-		"phm" => ["フィレモンへの手紙", "フィレ", "フィレモン", "new"],
-		"heb" => ["ヘブライ人への手紙", "ヘブ", "ヘブライ", "new"],
-		"jam" => ["ヤコブの手紙", "ヤコ", "ヤコブ", "new"],
-		"1pe" => ["ペトロの手紙一", "１ペト", "１ペトロ", "new"],
-		"2pe" => ["ペトロの手紙二", "２ペト", "２ペトロ", "new"],
-		"1jo" => ["ヨハネの手紙一", "１ヨハ", "１ヨハネ", "new"],
-		"2jo" => ["ヨハネの手紙二", "２ヨハ", "２ヨハネ", "new"],
-		"3jo" => ["ヨハネの手紙三", "３ヨハ", "３ヨハネ", "new"],
-		"jud" => ["ユダの手紙", "ユダ", "ユダ", "new"],
-		"rev" => ["ヨハネの黙示録", "黙", "黙示録", "new"],
-	];
+    "gen" => ["創世記", "創", "創世記", "old"],
+    "exo" => ["出エジプト記", "出", "出エジプト", "old"],
+    "lev" => ["レビ記", "レビ", "レビ記", "old"],
+    "num" => ["民数記", "民", "民数記", "old"],
+    "deu" => ["申命記", "申", "申命記", "old"],
+    "jos" => ["ヨシュア記", "ヨシュ", "ヨシュア", "old"],
+    "jdg" => ["士師記", "士", "士師記", "old"],
+    "rut" => ["ルツ記", "ルツ", "ルツ記", "old"],
+    "1sa" => ["サムエル記上", "サム上", "サムエル上", "old"],
+    "2sa" => ["サムエル記下", "サム下", "サムエル下", "old"],
+    "1ki" => ["列王記上", "列上", "列王記上", "old"],
+    "2ki" => ["列王記下", "列下", "列王記下", "old"],
+    "1ch" => ["歴代誌上", "歴上", "歴代誌上", "old"],
+    "2ch" => ["歴代誌下", "歴下", "歴代誌下", "old"],
+    "ezr" => ["エズラ記", "エズ", "エズラ記", "old"],
+    "neh" => ["ネヘミヤ記", "ネヘ", "ネヘミヤ", "old"],
+    "est" => ["エステル記", "エス", "エステル", "old"],
+    "job" => ["ヨブ記", "ヨブ", "ヨブ記", "old"],
+    "psa" => ["詩編", "詩", "詩編", "old"],
+    "pro" => ["箴言", "箴", "箴言", "old"],
+    "qoh" => ["コヘレトの言葉", "コヘ", "コヘレト", "old"],
+    "son" => ["雅歌", "雅", "雅歌", "old"],
+    "isa" => ["イザヤ書", "イザ", "イザヤ書", "old"],
+    "jer" => ["エレミヤ書", "エレ", "エレミヤ", "old"],
+    "lam" => ["哀歌", "哀", "哀歌", "old"],
+    "eze" => ["エゼキエル書", "エゼ", "エゼキエル", "old"],
+    "dan" => ["ダニエル書", "ダニ", "ダニエル", "old"],
+    "hos" => ["ホセア書", "ホセ", "ホセア書", "old"],
+    "joe" => ["ヨエル書", "ヨエ", "ヨエル書", "old"],
+    "amo" => ["アモス書", "アモ", "アモス書", "old"],
+    "oba" => ["オバデヤ書", "オバ", "オバデヤ", "old"],
+    "jon" => ["ヨナ書", "ヨナ", "ヨナ書", "old"],
+    "mic" => ["ミカ書", "ミカ", "ミカ書", "old"],
+    "nah" => ["ナホム書", "ナホ", "ナホム書", "old"],
+    "hab" => ["ハバクク書", "ハバ", "ハバクク", "old"],
+    "zep" => ["ゼファニヤ書", "ゼファ", "ゼファニヤ", "old"],
+    "hag" => ["ハガイ書", "ハガ", "ハガイ書", "old"],
+    "zec" => ["ゼカリヤ書", "ゼカ", "ゼカリヤ", "old"],
+    "mal" => ["マラキ書", "マラ", "マラキ", "old"],
+    "mat" => ["マタイによる福音書", "マタ", "マタイ", "new"],
+    "mar" => ["マルコによる福音書", "マコ", "マルコ", "new"],
+    "luk" => ["ルカによる福音書", "ルカ", "ルカ", "new"],
+    "joh" => ["ヨハネによる福音書", "ヨハ", "ヨハネ", "new"],
+    "act" => ["使徒言行録", "使", "使徒", "new"],
+    "rom" => ["ローマの信徒への手紙", "ロマ", "ローマ", "new"],
+    "1co" => ["コリントの信徒への手紙一", "１コリ", "１コリント", "new"],
+    "2co" => ["コリントの信徒への手紙二", "２コリ", "２コリント", "new"],
+    "gal" => ["ガラテヤの信徒への手紙", "ガラ", "ガラテヤ", "new"],
+    "eph" => ["エフェソの信徒への手紙", "エフェ", "エフェソ", "new"],
+    "phi" => ["フィリピの信徒への手紙", "フィリ", "フィリピ", "new"],
+    "col" => ["コロサイの信徒への手紙", "コロ", "コロサイ", "new"],
+    "1th" => ["テサロニケの信徒への手紙一", "１テサ", "１テサロニケ", "new"],
+    "2th" => ["テサロニケの信徒への手紙二", "２テサ", "２テサロニケ", "new"],
+    "1ti" => ["テモテへの手紙一", "１テモ", "１テモテ", "new"],
+    "2ti" => ["テモテへの手紙二", "２テモ", "２テモテ", "new"],
+    "tit" => ["テトスへの手紙", "テト", "テトス", "new"],
+    "phm" => ["フィレモンへの手紙", "フィレ", "フィレモン", "new"],
+    "heb" => ["ヘブライ人への手紙", "ヘブ", "ヘブライ", "new"],
+    "jam" => ["ヤコブの手紙", "ヤコ", "ヤコブ", "new"],
+    "1pe" => ["ペトロの手紙一", "１ペト", "１ペトロ", "new"],
+    "2pe" => ["ペトロの手紙二", "２ペト", "２ペトロ", "new"],
+    "1jo" => ["ヨハネの手紙一", "１ヨハ", "１ヨハネ", "new"],
+    "2jo" => ["ヨハネの手紙二", "２ヨハ", "２ヨハネ", "new"],
+    "3jo" => ["ヨハネの手紙三", "３ヨハ", "３ヨハネ", "new"],
+    "jud" => ["ユダの手紙", "ユダ", "ユダ", "new"],
+    "rev" => ["ヨハネの黙示録", "黙", "黙示録", "new"],
+  ];
 function biblebooks_rec(string $key): array {
-	global $biblebooks;
-	if(!array_key_exists($key, $biblebooks)){
-		return [];
-	}
-	return $biblebooks[$key];
+  global $biblebooks;
+  if(!array_key_exists($key, $biblebooks)){
+    return [];
+  }
+  return $biblebooks[$key];
 }
 function lookup_bible(string $id, string $kind): string {
-	global $valkeys;
-	$id = strtolower($id);
-	$pos = array_search($kind, $valkeys);
-	if($pos === false){
-		return "";
-	}
-	return biblebooks_rec($id)[$pos];
+  global $valkeys;
+  $id = strtolower($id);
+  $pos = array_search($kind, $valkeys);
+  if($pos === false){
+    return "";
+  }
+  return biblebooks_rec($id)[$pos];
 }
 function render_range(string $beg_chap, string $beg_sec, ?string $end_chap = null, string $end_sec): string {
-	$beg_has_l = preg_match("/\A(:?0|[1-9]\d*)([a-z])\z/", $beg_sec);
-	$beg_sec_nr =$beg_has_l == 1 ? mb_substr($beg_sec, 0, mb_strlen($beg_sec) - 1) : $beg_sec;
-	$beg_sec_l = $beg_has_l == 1 ? mb_substr($beg_sec, mb_strlen($beg_sec) - 1) : "";
-	$end_has_l = preg_match("/\A(:?0|[1-9]\d*)([a-z])\z/", $end_sec);
-	$end_sec_nr = $end_has_l == 1 ? mb_substr($end_sec, 0, mb_strlen($end_sec) - 1) : $end_sec;
-	$end_sec_l = $end_has_l == 1 ? mb_substr($end_sec, mb_strlen($end_sec) - 1) : "";
+  $beg_has_l = preg_match("/\A(:?0|[1-9]\d*)([a-z])\z/", $beg_sec);
+  $beg_sec_nr =$beg_has_l == 1 ? mb_substr($beg_sec, 0, mb_strlen($beg_sec) - 1) : $beg_sec;
+  $beg_sec_l = $beg_has_l == 1 ? mb_substr($beg_sec, mb_strlen($beg_sec) - 1) : "";
+  $end_has_l = preg_match("/\A(:?0|[1-9]\d*)([a-z])\z/", $end_sec);
+  $end_sec_nr = $end_has_l == 1 ? mb_substr($end_sec, 0, mb_strlen($end_sec) - 1) : $end_sec;
+  $end_sec_l = $end_has_l == 1 ? mb_substr($end_sec, mb_strlen($end_sec) - 1) : "";
 
-	return str_pad($beg_chap, 2, " ", STR_PAD_LEFT) . ":" . str_pad($beg_sec_nr, 2, " ", STR_PAD_LEFT) . $beg_sec_l
-		. "～" . ($end_chap == null ? "" : (str_pad($end_chap, 2, " ", STR_PAD_LEFT) . ":" . str_pad($end_sec_nr, 2, " ", STR_PAD_LEFT) . $end_sec_l));
+  return str_pad($beg_chap, 2, " ", STR_PAD_LEFT) . ":" . str_pad($beg_sec_nr, 2, " ", STR_PAD_LEFT) . $beg_sec_l
+    . "～" . ($end_chap == null ? "" : (str_pad($end_chap, 2, " ", STR_PAD_LEFT) . ":" . str_pad($end_sec_nr, 2, " ", STR_PAD_LEFT) . $end_sec_l));
 }
 function render_doc(string $doc): string {
-	/*
-	bbbcc:ss(l)?-(cc:)?ss(l)?(,(cc:)?ss(l)?-(cc:)?ss(l)?)*
+  /*
+  bbbcc:ss(l)?-(cc:)?ss(l)?(,(cc:)?ss(l)?-(cc:)?ss(l)?)*
 
-	bbb: 聖書文書の略号 (例: gen, exo, psaなど) [required]
-	cc: 章番号 (例: 1, 2, 3など) [required, but if same as previous cc, can be omitted]
+  bbb: 聖書文書の略号 (例: gen, exo, psaなど) [required]
+  cc: 章番号 (例: 1, 2, 3など) [required, but if same as previous cc, can be omitted]
   ss: 節番号 (例: 1, 2, 3など) [required]
-	l: 節全部ではなく一部の文のみを読む場合、文の順番を表すアルファベット数字 (例: a, b, cなど) [optional]
+  l: 節全部ではなく一部の文のみを読む場合、文の順番を表すアルファベット数字 (例: a, b, cなど) [optional]
 
-	例えば、`gen1:1-3`は創世記の第1章の1節から3節までを意味し、`psa23:1,3-4`は詩編の第23章の1節と3節から4節までを意味します。
-		*/
-	$range_id = ["beg", "end"];
-	$num_re = "(:?0|[1-9]\d*)";
-	$chap_re = fn (bool $is_nuke, string $id) => $is_nuke ? $num_re : "(?P<{$id}_chap>{$num_re})";
-	$chap_re_with_col = fn (bool $is_nuke, string $id) => "(:?{$chap_re($is_nuke, $id)}:)";
-	$sec_re = fn (bool $is_nuke, string $id) => $is_nuke ? "(:?{$num_re}[a-z]?)" : "(?P<{$id}_sec>{$num_re}[a-z]?)";
-	$chap_sec_re = fn (bool $is_nuke, string $id, bool $is_first) => $chap_re_with_col($is_nuke, $id) . ($is_first ? "" : "?") . $sec_re($is_nuke, $id);
-	$range_re = fn (bool $is_nuke, bool $is_first) => "(:?{$chap_sec_re($is_nuke, $range_id[0], $is_first)}-{$chap_sec_re($is_nuke, $range_id[1], false)})";
-	$full_re = fn (bool $is_nuke) => "/\A(?P<book>[a-z0-9][a-z]{2}){$range_re($is_nuke, true)}(:?,{$range_re($is_nuke, false)})*\z";
-	$status = preg_match($full_re(true), $doc);
+  例えば、`gen1:1-3`は創世記の第1章の1節から3節までを意味し、`psa23:1,3-4`は詩編の第23章の1節と3節から4節までを意味します。
+    */
+  $range_id = ["beg", "end"];
+  $num_re = "(:?0|[1-9]\d*)";
+  $chap_re = fn (bool $is_nuke, string $id) => $is_nuke ? $num_re : "(?P<{$id}_chap>{$num_re})";
+  $chap_re_with_col = fn (bool $is_nuke, string $id) => "(:?{$chap_re($is_nuke, $id)}:)";
+  $sec_re = fn (bool $is_nuke, string $id) => $is_nuke ? "(:?{$num_re}[a-z]?)" : "(?P<{$id}_sec>{$num_re}[a-z]?)";
+  $chap_sec_re = fn (bool $is_nuke, string $id, bool $is_first) => $chap_re_with_col($is_nuke, $id) . ($is_first ? "" : "?") . $sec_re($is_nuke, $id);
+  $range_re = fn (bool $is_nuke, bool $is_first) => "(:?{$chap_sec_re($is_nuke, $range_id[0], $is_first)}-{$chap_sec_re($is_nuke, $range_id[1], false)})";
+  $full_re = fn (bool $is_nuke) => "/\A(?P<book>[a-z0-9][a-z]{2}){$range_re($is_nuke, true)}(:?,{$range_re($is_nuke, false)})*\z";
+  $status = preg_match($full_re(true), $doc);
   if($status != 1){
     return "";
   }
-	$book = lookup_bible(substr($doc, 0, 3), "abbr2");
-	$ranges = mb_split(",", substr($doc, 3));
-	$first_range = $ranges[0];
-	$first_range_txt = (function(string $base_str) use ($range_re) {
-		$status = preg_match($range_re(false, true), $base_str, $matches);
-		if($status != 1){
-			return "";
-		}
-		return render_range($matches["beg_chap"], $matches["beg_sec"], $matches["end_chap"], $matches["end_sec"]);
-	})($first_range);
-	$remaining_ranges = array_slice($ranges, 1);
-	$remaining_ranges_txt = implode("、",
-		array_map(
-			function(string $e) use ($range_re) {
-				$status = preg_match($range_re(false, false), $e, $matches);
-				if($status != 1){
-					return "";
-				}
-				return render_range($matches["beg_chap"], $matches["beg_sec"], array_key_exists("end_chap", $matches) ? $matches["end_chap"] : null, $matches["end_sec"]);
-			},
-			$remaining_ranges
-		)
-	);
-	return $book . "\t" . $first_range_txt . ($remaining_ranges_txt == "" ? "" : ("、" . $remaining_ranges_txt));
+  $book = lookup_bible(substr($doc, 0, 3), "abbr2");
+  $ranges = mb_split(",", substr($doc, 3));
+  $first_range = $ranges[0];
+  $first_range_txt = (function(string $base_str) use ($range_re) {
+    $status = preg_match($range_re(false, true), $base_str, $matches);
+    if($status != 1){
+      return "";
+    }
+    return render_range($matches["beg_chap"], $matches["beg_sec"], $matches["end_chap"], $matches["end_sec"]);
+  })($first_range);
+  $remaining_ranges = array_slice($ranges, 1);
+  $remaining_ranges_txt = implode("、",
+    array_map(
+      function(string $e) use ($range_re) {
+        $status = preg_match($range_re(false, false), $e, $matches);
+        if($status != 1){
+          return "";
+        }
+        return render_range($matches["beg_chap"], $matches["beg_sec"], array_key_exists("end_chap", $matches) ? $matches["end_chap"] : null, $matches["end_sec"]);
+      },
+      $remaining_ranges
+    )
+  );
+  return $book . "\t" . $first_range_txt . ($remaining_ranges_txt == "" ? "" : ("、" . $remaining_ranges_txt));
 }
 function pericindex(array $attr): string {
-	$labels = ["1" => "第１朗読", "2" => "第２朗読", "g" => "福音書"];
-	if(!array_key_exists("at", $attr) || !array_key_exists($attr["doc"], $attr)){
-		return "";
-	}
+  $labels = ["1" => "第１朗読", "2" => "第２朗読", "g" => "福音書"];
+  if(!array_key_exists("at", $attr) || !array_key_exists($attr["doc"], $attr)){
+    return "";
+  }
 
-	$no = match(lookup_bible(substr($attr["doc"], 0, 3), "newold")){
-		"new" => "新",
-		"old" => "旧",
-		default => ""
-	};
+  $no = match(lookup_bible(substr($attr["doc"], 0, 3), "newold")){
+    "new" => "新",
+    "old" => "旧",
+    default => ""
+  };
 
-	return $labels[$attr["at"]]. "　"
-	  . render_doc($attr["doc"])
-		. " (" . $no . " " . (array_key_exists("nip", $attr) ? $attr["nip"] : "...")
-		. "/" . (array_key_exists("sip", $attr) ? $attr["sip"] : "...") . ")";
+  return $labels[$attr["at"]]. "　"
+    . render_doc($attr["doc"])
+    . " (" . $no . " " . (array_key_exists("nip", $attr) ? $attr["nip"] : "...")
+    . "/" . (array_key_exists("sip", $attr) ? $attr["sip"] : "...") . ")";
 
 }
 
