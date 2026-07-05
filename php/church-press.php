@@ -279,83 +279,82 @@ function lookup_bible(string $id, string $kind): string {
   return biblebooks_rec($id)[$pos];
 }
 function render_range(string $beg_chap, string $beg_sec, ?string $end_chap = null, string $end_sec): string {
-  $beg_has_l = preg_match("/\A(:?0|[1-9]\d*)([a-z])\z/", $beg_sec);
-  $beg_sec_nr =$beg_has_l == 1 ? mb_substr($beg_sec, 0, mb_strlen($beg_sec) - 1) : $beg_sec;
-  $beg_sec_l = $beg_has_l == 1 ? mb_substr($beg_sec, mb_strlen($beg_sec) - 1) : "";
-  $end_has_l = preg_match("/\A(:?0|[1-9]\d*)([a-z])\z/", $end_sec);
-  $end_sec_nr = $end_has_l == 1 ? mb_substr($end_sec, 0, mb_strlen($end_sec) - 1) : $end_sec;
-  $end_sec_l = $end_has_l == 1 ? mb_substr($end_sec, mb_strlen($end_sec) - 1) : "";
+	$beg_has_l = preg_match("/\A(:?0|[1-9]\d*)([a-z])\z/", $beg_sec);
+	$beg_sec_nr =$beg_has_l == 1 ? mb_substr($beg_sec, 0, mb_strlen($beg_sec) - 1) : $beg_sec;
+	$beg_sec_l = $beg_has_l == 1 ? mb_substr($beg_sec, mb_strlen($beg_sec) - 1) : "";
+	$end_has_l = preg_match("/\A(:?0|[1-9]\d*)([a-z])\z/", $end_sec);
+	$end_sec_nr = $end_has_l == 1 ? mb_substr($end_sec, 0, mb_strlen($end_sec) - 1) : $end_sec;
+	$end_sec_l = $end_has_l == 1 ? mb_substr($end_sec, mb_strlen($end_sec) - 1) : "";
 
-  return str_pad($beg_chap, 2, " ", STR_PAD_LEFT) . ":" . str_pad($beg_sec_nr, 2, " ", STR_PAD_LEFT) . $beg_sec_l
-    . "～" . ($end_chap == null ? "" : (str_pad($end_chap, 2, " ", STR_PAD_LEFT) . ":" . str_pad($end_sec_nr, 2, " ", STR_PAD_LEFT) . $end_sec_l));
+	return str_pad($beg_chap, 2, " ", STR_PAD_LEFT) . ":" . str_pad($beg_sec_nr, 2, " ", STR_PAD_LEFT) . $beg_sec_l
+		. "～" . ($end_chap == null ? "" : (str_pad($end_chap, 2, " ", STR_PAD_LEFT) . ":")) . str_pad($end_sec_nr, 2, " ", STR_PAD_LEFT) . $end_sec_l;
 }
 function render_doc(string $doc): string {
-  /*
-  bbbcc:ss(l)?-(cc:)?ss(l)?(,(cc:)?ss(l)?-(cc:)?ss(l)?)*
+	/*
+	bbbcc:ss(l)?-(cc:)?ss(l)?(,(cc:)?ss(l)?-(cc:)?ss(l)?)*
 
-  bbb: 聖書文書の略号 (例: gen, exo, psaなど) [required]
-  cc: 章番号 (例: 1, 2, 3など) [required, but if same as previous cc, can be omitted]
+	bbb: 聖書文書の略号 (例: gen, exo, psaなど) [required]
+	cc: 章番号 (例: 1, 2, 3など) [required, but if same as previous cc, can be omitted]
   ss: 節番号 (例: 1, 2, 3など) [required]
-  l: 節全部ではなく一部の文のみを読む場合、文の順番を表すアルファベット数字 (例: a, b, cなど) [optional]
+	l: 節全部ではなく一部の文のみを読む場合、文の順番を表すアルファベット数字 (例: a, b, cなど) [optional]
 
-  例えば、`gen1:1-3`は創世記の第1章の1節から3節までを意味し、`psa23:1,3-4`は詩編の第23章の1節と3節から4節までを意味します。
-    */
-  $range_id = ["beg", "end"];
-  $num_re = "(:?0|[1-9]\d*)";
-  $chap_re = fn (bool $is_nuke, string $id) => $is_nuke ? $num_re : "(?P<{$id}_chap>{$num_re})";
-  $chap_re_with_col = fn (bool $is_nuke, string $id) => "(:?{$chap_re($is_nuke, $id)}:)";
-  $sec_re = fn (bool $is_nuke, string $id) => $is_nuke ? "(:?{$num_re}[a-z]?)" : "(?P<{$id}_sec>{$num_re}[a-z]?)";
-  $chap_sec_re = fn (bool $is_nuke, string $id, bool $is_first) => $chap_re_with_col($is_nuke, $id) . ($is_first ? "" : "?") . $sec_re($is_nuke, $id);
-  $range_re = fn (bool $is_nuke, bool $is_first) => "(:?{$chap_sec_re($is_nuke, $range_id[0], $is_first)}-{$chap_sec_re($is_nuke, $range_id[1], false)})";
-  $full_re = fn (bool $is_nuke) => "/\A(?P<book>[a-z0-9][a-z]{2}){$range_re($is_nuke, true)}(:?,{$range_re($is_nuke, false)})*\z";
-  $status = preg_match($full_re(true), $doc);
+	例えば、`gen1:1-3`は創世記の第1章の1節から3節までを意味し、`psa23:1,3-4`は詩編の第23章の1節と3節から4節までを意味します。
+		*/
+	$range_id = ["beg", "end"];
+	$num_re = "(:?0|[1-9]\d*)";
+	$chap_re = fn (bool $is_nuke, string $id) => $is_nuke ? $num_re : "(?P<{$id}_chap>{$num_re})";
+	$chap_re_with_col = fn (bool $is_nuke, string $id) => "(:?{$chap_re($is_nuke, $id)}:)";
+	$sec_re = fn (bool $is_nuke, string $id) => $is_nuke ? "(:?{$num_re}[a-z]?)" : "(?P<{$id}_sec>{$num_re}[a-z]?)";
+	$chap_sec_re = fn (bool $is_nuke, string $id, bool $is_first) => $chap_re_with_col($is_nuke, $id) . ($is_first ? "" : "?") . $sec_re($is_nuke, $id);
+	$range_re = fn (bool $is_nuke, bool $is_first) => "(:?{$chap_sec_re($is_nuke, $range_id[0], $is_first)}-{$chap_sec_re($is_nuke, $range_id[1], false)})";
+	$full_re = fn (bool $is_nuke) => "/\A(?P<book>[a-z0-9][a-z]{2}){$range_re($is_nuke, true)}(:?,{$range_re($is_nuke, false)})*\z/";
+	$status = preg_match($full_re(true), $doc);
   if($status != 1){
-    return "";
+    return "illegal-doc-format&#x09;" . ($status == 0 ? "no-matched" : "illegal-re"). "&#x09;re: " . $full_re(true);
   }
-  $book = lookup_bible(substr($doc, 0, 3), "abbr2");
-  $ranges = mb_split(",", substr($doc, 3));
-  $first_range = $ranges[0];
-  $first_range_txt = (function(string $base_str) use ($range_re) {
-    $status = preg_match($range_re(false, true), $base_str, $matches);
-    if($status != 1){
-      return "";
-    }
-    return render_range($matches["beg_chap"], $matches["beg_sec"], $matches["end_chap"], $matches["end_sec"]);
-  })($first_range);
-  $remaining_ranges = array_slice($ranges, 1);
-  $remaining_ranges_txt = implode("、",
-    array_map(
-      function(string $e) use ($range_re) {
-        $status = preg_match($range_re(false, false), $e, $matches);
-        if($status != 1){
-          return "";
-        }
-        return render_range($matches["beg_chap"], $matches["beg_sec"], array_key_exists("end_chap", $matches) ? $matches["end_chap"] : null, $matches["end_sec"]);
-      },
-      $remaining_ranges
-    )
-  );
-  return $book . "\t" . $first_range_txt . ($remaining_ranges_txt == "" ? "" : ("、" . $remaining_ranges_txt));
+	$book = lookup_bible(substr($doc, 0, 3), "abbr2");
+	$ranges = mb_split(",", substr($doc, 3));
+	$first_range = $ranges[0];
+	$first_range_txt = (function(string $base_str) use ($range_re) {
+		$status = preg_match($range_re(false, true), $base_str, $matches);
+		if($status != 1){
+			return "";
+		}
+		return render_range($matches["beg_chap"], $matches["beg_sec"], $matches["end_chap"], $matches["end_sec"]);
+	})($first_range);
+	$remaining_ranges = array_slice($ranges, 1);
+	$remaining_ranges_txt = implode("、",
+		array_map(
+			function(string $e) use ($range_re) {
+				$status = preg_match($range_re(false, false), $e, $matches);
+				if($status != 1){
+					return "";
+				}
+				return render_range($matches["beg_chap"], $matches["beg_sec"], array_key_exists("end_chap", $matches) ? $matches["end_chap"] : null, $matches["end_sec"]);
+			},
+			$remaining_ranges
+		)
+	);
+	return $book . "&#x09;" . $first_range_txt . ($remaining_ranges_txt == "" ? "" : ("、" . $remaining_ranges_txt));
 }
 function pericindex(array $attr): string {
-  $labels = ["1" => "第１朗読", "2" => "第２朗読", "g" => "福音書"];
-  if(!array_key_exists("at", $attr) || !array_key_exists($attr["doc"], $attr)){
-    return "";
-  }
+	$labels = ["1" => "第１朗読", "2" => "第２朗読", "g" => "福音書"];
+	if(!array_key_exists("at", $attr) || !array_key_exists("doc", $attr)){
+		return "no-sc-arg: rat or doc missing&#x09;" . implode(", ", array_keys($attr));
+	}
 
-  $no = match(lookup_bible(substr($attr["doc"], 0, 3), "newold")){
-    "new" => "新",
-    "old" => "旧",
-    default => ""
-  };
+	$no = match(lookup_bible(substr($attr["doc"], 0, 3), "newold")){
+		"new" => "新",
+		"old" => "旧",
+		default => ""
+	};
 
-  return $labels[$attr["at"]]. "　"
-    . render_doc($attr["doc"])
-    . " (" . $no . " " . (array_key_exists("nip", $attr) ? $attr["nip"] : "...")
-    . "/" . (array_key_exists("sip", $attr) ? $attr["sip"] : "...") . ")";
+	return "　" . $labels[$attr["at"]]. "　"
+	  . render_doc($attr["doc"])
+		. " (" . $no . " " . (array_key_exists("nip", $attr) ? $attr["nip"] : "...")
+		. " / " . (array_key_exists("sip", $attr) ? $attr["sip"] : "...") . ")";
 
 }
 
 add_shortcode("peric", "pericindex");
-
 ?>
