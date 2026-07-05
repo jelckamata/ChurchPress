@@ -357,4 +357,18 @@ function pericindex(array $attr): string {
 }
 
 add_shortcode("peric", "pericindex");
+
+add_action( 'wp_enqueue_scripts', function(){
+  wp_enqueue_style( 'my-style', get_template_directory_uri() . "/assets/liturgical.sty.css" );
+} );
+
+function add_liturgical_css() {
+    // CSSファイルのURLを取得
+    $css_url = plugin_dir_url( __FILE__ ) . "assets/liturgical.sty.css";
+    
+    // CSSを登録して読み込み
+    wp_enqueue_style( "liturgical-visual-style", $css_url, array(), "0.1.0", "all" );
+}
+// フロントエンドでCSSを読み込むアクションフック
+add_action( "wp_enqueue_scripts", "add_liturgical_css" );
 ?>
