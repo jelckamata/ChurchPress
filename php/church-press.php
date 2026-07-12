@@ -390,4 +390,152 @@ function load_midi_scripts() {
     );
 }
 add_action( "wp_enqueue_scripts", "load_midi_scripts" );
+
+class HtmlTag {
+	public bool $is_self_closing;
+	public string $tag_name;
+	public string $id;
+	/**
+	 * @var string[]
+	 */
+	public array $classes;
+	public array $attributes;
+	/**
+	 * @var HtmlTag[]
+	 */
+	public array $children;
+	public function __construct(bool $is_self_closing, string $tag_name, string $id = "", array $classes = [], array $attributes = [], array $children = []) {
+		$this->is_self_closing = $is_self_closing;
+		$this->tag_name = $tag_name;
+		$this->id = $id;
+		$this->classes = $classes;
+		$this->attributes = $attributes;
+		$this->children = $children;
+	}
+	/**
+	 * @return string[]
+	 */
+	public function render(): array {
+    $ret = array();
+		$beg = "";
+		if($this->is_self_closing){
+			$beg .= "<" . $this->tag_name;
+			$beg .= $this->id == "" ? "" : " id=\"" . esc_attr($this->id) . "\"";
+			$beg .= count($this->classes) == 0 ? "" : " class=\"" . esc_attr(implode(" ", $this->classes)) . "\"";
+			foreach($this->attributes as $key => $value){
+				$beg .= " " . esc_attr($key) . "=\"" . esc_attr($value) . "\"";
+			}
+			$beg .= "/>";
+		}else{
+			$beg .= "<" . $this->tag_name;
+			$beg .= $this->id == "" ? "" : " id=\"" . esc_attr($this->id) . "\"";
+			$beg .= count($this->classes) == 0 ? "" : " class=\"" . esc_attr(implode(" ", $this->classes)) . "\"";
+			foreach($this->attributes as $key => $value){
+				$beg .= " " . esc_attr($key) . "=\"" . esc_attr($value) . "\"";
+			}
+			$beg .= ">";
+		}
+		array_push($ret, $beg);
+	  if(!$this->is_self_closing){
+			$ch_lines = array_map(function(HtmlTag $e): array { return $e->render(); }, $this->children);
+			foreach($ch_lines as $line){
+				array_push($ret, $line);
+			}
+			array_push($ret, "</" . $this->tag_name . ">");
+	  }
+		return $ret;
+	}
+}
+
+readonly class OGPData {
+	public bool $is_singular;
+	public string $site_name;
+	public string $title;
+	public string $description;
+	public string $image_url;
+	public string $url;
+	public function __construct(bool $is_singular, string $site_name, string $title, string $description, string $image_url, string $url) {
+		$this->is_singular = $is_singular;
+		$this->site_name = $site_name;
+		$this->title = $title;
+		$this->description = $description;
+		$this->image_url = $image_url;
+		$this->url = $url;
+	}
+	/**
+	 * @return HtmlTag[]
+	 */
+	public function build_tags(): array {
+		return [
+			new HtmlTag(true, "meta", "", [], ["property" => "og:type", "content" => $this->is_singular ? "article" : "website"]),
+			new HtmlTag(true, "meta", "", [], ["property" => "og:site_name", "content" => $this->site_name]),
+			new HtmlTag(true, "meta", "", [], ["property" => "og:title", "content" => ($this->title . " | " . $this->site_name)]),
+			new HtmlTag(true, "meta", "", [], ["property" => "og:description", "content" => $this->description]),
+			new HtmlTag(true, "meta", "", [], ["property" => "og:image", "content" => $this->image_url]),
+			new HtmlTag(true, "meta", "", [], ["property" => "og:url", "content" => $this->url]),
+			new HtmlTag(true, "meta", "", [], ["name" => "twitter:card", "content" => "summary_large_image"]),
+			new HtmlTag(true, "meta", "", [], ["name" => "twitter:title", "content" => ($this->title . " | " . $this->site_name)]),
+			new HtmlTag(true, "meta", "", [], ["name" => "twitter:description", "content" => $this->description]),
+			new HtmlTag(true, "meta", "", [], ["name" => "twitter:image", "content" => $this->image_url]),
+			new HtmlTag(true, "meta", "", [], ["name" => "twitter:site", "content" => ""])
+		];
+	}
+	/**
+	 * @return string[]
+	 */
+	public function build_lines(): array {
+    $arr_of_lines = array_map(function(HtmlTag $e): array { return $e->render(); }, $this->build_tags());
+		$ret = [];
+		foreach($arr_of_lines as $lines){
+			foreach($lines as $line){
+				array_push($ret, $line);
+			}
+		}
+		return $ret;
+	}
+	public function render(): string {
+		return implode("\n", $this->build_lines());
+	}
+}
+
+function make_and_ogp_data(bool $is_front, bool $is_singular): OGPData {
+	$header_image_url = get_header_image();
+	$site_name = bloginfo("name");
+	$site_desc = bloginfo("description");
+	$top_title = "Home";
+	$top_url = home_url("/");
+	if($is_front){
+		return new OGPData(false, $site_name, $top_title, $site_desc, $header_image_url, $top_url);
+	} else if($is_singular){
+		global $post;
+		$post_title = get_the_title();
+		$post_url = get_permalink();
+		if(has_excerpt($post)){
+			$post_desc = $post->post_excerpt;
+		} else {
+			$post_desc = wp_trim_words(strip_tags($post->post_content), 55, "...");
+		}
+		if(has_post_thumbnail()) {
+			$thumnail_id = get_post_thumbnail_id($post);
+			$thumnail_image = wp_get_attachment_image_src($thumnail_id, "large");
+			$post_header_image_url = $thumnail_image[0];
+		} else {
+			$post_header_image_url = $header_image_url;
+		}
+		return new OGPData(true, $site_name, $post_title, $post_desc, $post_header_image_url, $post_url);
+	} else {
+		$page_title = wp_title("", false);
+		$page_url = (empty($_SERVER["HTTPS"]) ? "http://" : "https://") . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
+		return new OGPData(false, $site_name, $page_title, $site_desc, $header_image_url, $page_url);
+	}
+
+
+}
+
+function add_ogp_meta_tags() {
+	$ogp_data = make_and_ogp_data(is_front_page() || is_home(), is_singular());
+	
+	echo $ogp_data->render();
+}
+add_action("wp_head", "add_ogp_meta_tags");
 ?>
