@@ -401,7 +401,7 @@ class HtmlTag {
 	public array $classes;
 	public array $attributes;
 	/**
-	 * @var HtmlTag[]
+	 * @var array<HtmlTag|string>
 	 */
 	public array $children;
 	public function __construct(bool $is_self_closing, string $tag_name, string $id = "", array $classes = [], array $attributes = [], array $children = []) {
@@ -538,4 +538,84 @@ function add_ogp_meta_tags() {
 	echo $ogp_data->render();
 }
 add_action("wp_head", "add_ogp_meta_tags");
+
+readonly class LangVersion {
+  public string $lang;
+  public string $link_url;
+  public string $img_url;
+  public string $curr_ver;
+  public ?string $may_ver;
+  public ?LangVersion $target;
+  public function __construct(string $lang, string $link_url, string $img_url, string $curr_ver, ?string $may_ver = null, ?LangVersion $target = null) {
+    $this->lang = $lang;
+    $this->link_url = $link_url;
+    $this->img_url = $img_url;
+    $this->curr_ver = $curr_ver;
+    $this->may_ver = $may_ver;
+    $this->target = $target;
+  }
+  /**
+   * @return HtmlTag[]
+   */
+  public function build_tags(): array {
+    $internals = [
+      new HtmlTag(true, "img", "", ["logo"], ["src" => $this->img_url, "style" => "height: 2em;"]),
+      new HtmlTag(true, "br", "", [], []),
+      new HtmlTag(false, "span", "", ["name"], [], [$this->lang]),
+      new HtmlTag(false, "span", "", ["version"], [], [$this->curr_ver])
+    ];
+    if($this->may_ver != null){
+      array_push($internals, new HtmlTag(false, "span", "", ["may_version"], [], [$this->may_ver]));
+    }
+    if($this->target != null){
+      array_push($internals, new HtmlTag(false, "span", "", ["target"], [], [
+        new HtmlTag(false, "span", "", ["name"], [], [$this->target->lang]),
+        new HtmlTag(false, "span", "", ["version"], [], [$this->target->curr_ver])
+      ]));
+    }
+    return [
+      new HtmlTag(false, "div", "", ["powerd-by-cont"], [], [
+        new HtmlTag(false, "a", "", [], ["href" => $this->link_url, "rel" => "designer"], [
+          $internals
+        ])
+      ])
+    ];
+  }
+  /**
+   * @return string[]
+   */
+  public function build_lines(): array {
+    $arr_of_lines = array_map(function(HtmlTag $e): array { return $e->render(); }, $this->build_tags());
+    $ret = [];
+    foreach($arr_of_lines as $lines){
+      foreach($lines as $line){
+        array_push($ret, $line);
+      }
+    }
+    return $ret;
+  }
+  public function render(): string {
+    return implode("\n", $this->build_lines());
+  }
+}
+
+/**
+ * @return HtmlTag[]
+ */
+function make_footer(): array {
+  $ret = [];
+  $php_v = new LangVersion("PHP", "https://www.php.net/", "https://www.php.net/images/logos/php-logo.svg", "8.3");
+  $haxe_v = new LangVersion("Haxe", "https://haxe.org/", "https://haxe.org/img/haxe-logo-horizontal-on-dark.svg", "4.3", null, new LangVersion("PHP", "https://www.php.net/", "https://www.php.net/images/logos/php-logo.svg", "8.2"));
+  $dart_v = new LangVersion("Dart", "https://dart.dev/", "https://dart.dev/assets/img/logo/logo-white-text.svg", "3.12");
+  foreach($php_v->build_tags() as $tag){
+    array_push($ret, $tag);
+  }
+  foreach($haxe_v->build_tags() as $tag){
+    array_push($ret, $tag);
+  }
+  foreach($dart_v->build_tags() as $tag){
+    array_push($ret, $tag);
+  }
+  return $ret;
+}
 ?>
