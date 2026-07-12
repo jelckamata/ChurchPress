@@ -562,16 +562,28 @@ readonly class LangVersion {
       new HtmlTag(true, "img", "", ["logo"], ["src" => $this->img_url, "style" => "height: 2em;"]),
       new HtmlTag(true, "br", "", [], []),
       new HtmlTag(false, "span", "", ["name"], [], [$this->lang]),
+      " ",
       new HtmlTag(false, "span", "", ["version"], [], [$this->curr_ver])
     ];
+    if($this->may_ver != null || $this->target != null){
+      array_push($internals," (");
+    }
     if($this->may_ver != null){
       array_push($internals, new HtmlTag(false, "span", "", ["may_version"], [], [$this->may_ver]));
     }
+    if($this->may_ver != null && $this->target != null){
+      array_push($internals,"; ");
+    }
     if($this->target != null){
       array_push($internals, new HtmlTag(false, "span", "", ["target"], [], [
+        "target for ",
         new HtmlTag(false, "span", "", ["name"], [], [$this->target->lang]),
-        new HtmlTag(false, "span", "", ["version"], [], [$this->target->curr_ver])
+        " ",
+        new HtmlTag(false, "span", "", ["version"], [], [$this->target->curr_ver]),
       ]));
+    }
+    if($this->may_ver != null || $this->target != null){
+      array_push($internals,") ");
     }
     return [
       new HtmlTag(false, "div", "", ["powerd-by-cont"], [], [
