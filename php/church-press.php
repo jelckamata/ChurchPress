@@ -500,8 +500,8 @@ readonly class OGPData {
 
 function make_and_ogp_data(bool $is_front, bool $is_singular): OGPData {
 	$header_image_url = get_header_image();
-	$site_name = bloginfo("name");
-	$site_desc = bloginfo("description");
+	$site_name = get_bloginfo("name");
+	$site_desc = get_bloginfo("description");
 	$top_title = "Home";
 	$top_url = home_url("/");
 	if($is_front){
