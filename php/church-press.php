@@ -371,4 +371,23 @@ function add_liturgical_css() {
 }
 // フロントエンドでCSSを読み込むアクションフック
 add_action( "wp_enqueue_scripts", "add_liturgical_css" );
+
+function load_midi_scripts() {
+    // プラグインディレクトリ内のjsフォルダにあるscript.jsを読み込む
+    wp_enqueue_script(
+        "midi-magenta-script",
+        "https://cdn.jsdelivr.net/npm/@magenta/music@^1.23.1", 
+        array(),
+        '1.0.0',
+        true
+    );
+    wp_enqueue_script(
+        "midi-player-script",
+        "https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/focus-visible@5,npm/html-midi-player@1.4.0", 
+        array(),
+        '1.0.0',
+        true
+    );
+}
+add_action( "wp_enqueue_scripts", "load_midi_scripts" );
 ?>
